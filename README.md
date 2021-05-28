@@ -12,9 +12,9 @@
 
 `docker-compose exec -u www-data php-fpm bash` para entrar no container do php como usuário normal.
 
-Copiar o `.env.example` para o `.env`
-
 `composer install` para instalar as dependencias do projeto.
+
+Duplicar o `.env.example` e renomear a duplicata para `.env`
 
 `php artisan migrate --seed` para criar tabelas e inserir dados.
 
