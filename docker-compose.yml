@@ -1,0 +1,62 @@
+version: '3.3'
+
+services:
+### PHP-FPM Container #######################################
+    php-fpm:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        volumes:
+            - .:/var/www
+        expose:
+            - "9000"
+            - "9001"
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "dockerhost:192.168.96.1"
+        environment:
+            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
+            - PHP_IDE_CONFIG=serverName=laravel
+        networks:
+          - medicinae-backend-network
+
+
+### Nginx Server Container ##################################
+    nginx:
+        build:
+            context: ./
+            dockerfile: Dockerfile.nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
+        volumes:
+            - .:/var/www
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+          medicinae-backend-network:
+            aliases:
+              - backend-nginx
+
+### MySQL Server Container ##################################
+    mysql-laravel:
+      image: mysql:5.7
+      environment:
+        MYSQL_ROOT_PASSWORD: "laravel"
+        MYSQL_DATABASE: "laravel"
+        MYSQL_USER: "laravel"
+        MYSQL_PASSWORD: "secret"
+      ports:
+        - "3306:3306"
+      volumes:
+        - db-mysql-telescope:/var/lib/mysql
+      networks:
+        - medicinae-backend-network
+networks:
+  medicinae-backend-network:
+    driver: bridge
+
+volumes:
+  db-postgres:
+  db-postgres-dev:
+  db-mysql-telescope:
